@@ -309,8 +309,8 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
 							if(show_img) save_cv_jpg(show_img, buff); //save image files
 
 							//add delay for saving
-							//delay should be around 3s, so for frames to delayt
-							delay = floor(3*fps); 
+							//delay should be around 10s, so for frames to delay
+							delay = floor(10*fps); 
 							printf("Skip %d frames \n", fps);
 						}else
 						{
