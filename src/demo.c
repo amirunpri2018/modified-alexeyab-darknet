@@ -200,6 +200,10 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
     double before = get_wall_time();
 
 	
+	int i, k, should_save_detection, skip_saving_frames;
+	skip_saving_frames = 0;
+	char labelstr[4096] = { 0 };
+	char this_buff[10];
 
 
     while(1){
@@ -212,8 +216,6 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
             int local_nboxes = nboxes;
             detection *local_dets = dets;
 
-			int i, k;
-			int should_save_detection;
 
 
             //if (nms) do_nms_obj(local_dets, local_nboxes, l.classes, nms);    // bad results
@@ -270,54 +272,52 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
 				//Samson, Save image that detected something
 				should_save_detection = 0;
 
+				memset(labelstr, 0, 4096);
+				memset(this_buff, 0, 10);
 									
 				if (local_nboxes > 0)
 				{
 					for (i = 0; i < local_nboxes; ++i) {
-						char labelstr[4096] = { 0 };
-						int class_id = -1;
+						
 						for (k = 0; k < demo_classes; ++k) {
 							
 							if (local_dets[i].prob[k] > demo_thresh) {
-								should_save_detection++;
-								if (class_id < 0) {
-									strcat(labelstr, demo_names[k]);
-									class_id = k;
-									char this_buff[10];
-									sprintf(this_buff, " (%2.0f%%)", local_dets[i].prob[k] * 100);
-									strcat(labelstr, this_buff);
-								}
-								else {
-									strcat(labelstr, ", ");
-									strcat(labelstr, demo_names[k]);
-								}
-								printf("%s: %.0f%% ", demo_names[k], local_dets[i].prob[k] * 100);
-							}
+
+								should_save_detection++;			
+								strcat(labelstr, demo_names[k]);
+								strcat(labelstr, ", ");								
+								sprintf(this_buff, " (%2.0f%%)\n", local_dets[i].prob[k] * 100);
+								strcat(labelstr, this_buff);														
+							}							
 						}
+						//strcat(labelstr, "\n ");
 					}
 
 
 
 					if (should_save_detection > 0 )
 					{
-						printf("***detected: %d: ",should_save_detection);
+						printf("***detected: ");
+						printf("%s \n", labelstr);
 
-						if (delay <= 0)
+						if (skip_saving_frames <= 0)
 						{
+							//add delay for saving
+							//delay should be around 10s, so for frames to delay
+							skip_saving_frames = floor(10*fps); 
+							printf("Will skip next %d frames \n", skip_saving_frames);
+
 							char buff[256];
 							sprintf(buff, "%s_%08d.jpg", prefix, count);
 							if(show_img) save_cv_jpg(show_img, buff); //save image files
-
-							//add delay for saving
-							//delay should be around 10s, so for frames to delay
-							delay = floor(10*fps); 
-							printf("Skip %d frames \n", fps);
 						}else
 						{
 							//Detected no saving for every 3s
+							printf("Skipped saving \n");
 						}
 
 					}
+					skip_saving_frames--;
 				
 
 					//free(should_save_detection);
@@ -385,13 +385,16 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
     release_mat(&in_img);
     free_image(in_s);
 
+	//free(labelstr);
+	//free(this_buff);
+
     free(avg);
     for (j = 0; j < NFRAMES; ++j) free(predictions[j]);
     for (j = 0; j < NFRAMES; ++j) free_image(images[j]);
 
     free_ptrs((void **)names, net.layers[net.n - 1].classes);
 
-    int i;
+    //int i; //skip
     const int nsize = 8;
     for (j = 0; j < nsize; ++j) {
         for (i = 32; i < 127; ++i) {
