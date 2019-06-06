@@ -284,10 +284,10 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
 							if (local_dets[i].prob[k] > demo_thresh) {
 
 								should_save_detection++;			
-								strcat(labelstr, demo_names[k]);
-								strcat(labelstr, ", ");								
-								sprintf(this_buff, " (%2.0f%%)\n", local_dets[i].prob[k] * 100);
-								strcat(labelstr, this_buff);														
+								strcat(labelstr, demo_names[k]);															
+								sprintf(this_buff, " %2.0f%%", local_dets[i].prob[k] * 100);
+								strcat(labelstr, this_buff);
+								strcat(labelstr, ", ");	
 							}							
 						}
 						//strcat(labelstr, "\n ");
@@ -310,6 +310,8 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
 							char buff[256];
 							sprintf(buff, "%s_%08d.jpg", prefix, count);
 							if(show_img) save_cv_jpg(show_img, buff); //save image files
+
+							printf("JETSON_NANO_DETECTION:%s:%s", labelstr, buff);
 						}else
 						{
 							//Detected no saving for every 3s
