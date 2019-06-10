@@ -308,10 +308,10 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
 							printf("Will skip next %d frames \n", skip_saving_frames);
 
 							char buff[256];
-							sprintf(buff, "%s_%08d.jpg", prefix, count);
+							sprintf(buff, "%s_%010d.jpg", prefix, count);
 							if(show_img) save_cv_jpg(show_img, buff); //save image files
 
-							printf("JETSON_NANO_DETECTION:%s:%s", labelstr, buff);
+							printf("JETSON_NANO_DETECTION:%s:%s \n", labelstr, buff);
 						}else
 						{
 							//Detected no saving for every 3s
